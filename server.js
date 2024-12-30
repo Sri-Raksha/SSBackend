@@ -48,17 +48,19 @@ const authRoutes = require('./routes/auth');
 // Setting up routes
 app.use('/api/auth', authRoutes);
 
-// Serve static frontend files (Optional if you're serving the frontend from the backend)
+// Serve static frontend files
 const buildPath = path.join(__dirname, 'build');
 if (process.env.SERVE_FRONTEND === 'true') {
   app.use(express.static(buildPath));
+
+  // Catch-all route to serve frontend for unknown routes
   app.get('*', (req, res) => {
     res.sendFile(path.join(buildPath, 'index.html'));
   });
 }
 
 // Health Check Route
-app.get('/', (req, res) => {
+app.get('/api', (req, res) => {
   res.status(200).send('API is running.');
 });
 
