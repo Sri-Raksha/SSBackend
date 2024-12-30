@@ -2,15 +2,17 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const mongoose = require('mongoose');
+const path = require('path');
 require('dotenv').config(); // Load environment variables from .env file
 
 const app = express();
 
 // Middleware to enable CORS for all routes
 app.use(cors({
-  origin: '*', // Allow requests from all origins; customize this for security in production
+  origin: process.env.FRONTEND_URL || '*', // Allow requests from frontend URL; customize this for production
   methods: ['GET', 'POST', 'PUT', 'DELETE'], // Define allowed HTTP methods
   allowedHeaders: ['Content-Type', 'Authorization'], // Define allowed headers
+  credentials: true, // Enable cookies and credentials
 }));
 
 // Middleware to parse incoming JSON requests
@@ -24,7 +26,7 @@ if (!mongoUri) {
 }
 
 mongoose
-  .connect(mongoUri)
+  .connect(mongoUri, { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => {
     console.log('Connected to MongoDB Atlas');
   })
@@ -37,6 +39,7 @@ mongoose
 if (process.env.NODE_ENV !== 'production') {
   console.log('MONGO_URI:', process.env.MONGO_URI);
   console.log('JWT_SECRET:', process.env.JWT_SECRET);
+  console.log('FRONTEND_URL:', process.env.FRONTEND_URL);
 }
 
 // Importing routes
@@ -44,6 +47,15 @@ const authRoutes = require('./routes/auth');
 
 // Setting up routes
 app.use('/api/auth', authRoutes);
+
+// Serve static frontend files (Optional if you're serving the frontend from the backend)
+const buildPath = path.join(__dirname, 'build');
+if (process.env.SERVE_FRONTEND === 'true') {
+  app.use(express.static(buildPath));
+  app.get('*', (req, res) => {
+    res.sendFile(path.join(buildPath, 'index.html'));
+  });
+}
 
 // Health Check Route
 app.get('/', (req, res) => {
