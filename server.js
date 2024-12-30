@@ -8,7 +8,7 @@ const app = express();
 
 // Middleware to enable CORS
 app.use(cors({
-  origin: ['https://ss-frontend-three.vercel.app', 'http://localhost:5001'], // Include localhost (frontend) and hosted frontend URL
+  origin: ['https://6772f05000bb26141b4f704e--socialsparkle.netlify.app/', 'http://localhost:5001'], // Include localhost (frontend) and hosted frontend URL
   methods: ['GET', 'POST', 'PUT', 'DELETE'], // Allowed HTTP methods
   credentials: true, // Allow cookies and credentials
 }));
