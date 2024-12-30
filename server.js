@@ -8,9 +8,10 @@ const app = express();
 
 // Middleware to enable CORS
 app.use(cors({
-  origin: '*', // Allow all origins (update this to your frontend URL in production)
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
+  origin: process.env.FRONTEND_URL || 'https://ss-frontend-three.vercel.app/', // Replace '*' with your frontend's URL in production
+  methods: ['GET', 'POST', 'PUT', 'DELETE'], // Allowed HTTP methods
+  allowedHeaders: ['Content-Type', 'Authorization'], // Allowed headers
+  credentials: true, // Allow credentials like cookies
 }));
 
 // Middleware to parse JSON
