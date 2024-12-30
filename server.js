@@ -6,8 +6,12 @@ require('dotenv').config(); // Load environment variables from .env file
 
 const app = express();
 
-// Middleware to enable CORS
-app.use(cors());
+// Middleware to enable CORS for all routes
+app.use(cors({
+  origin: '*', // Allow requests from all origins; customize this for security in production
+  methods: ['GET', 'POST', 'PUT', 'DELETE'], // Define allowed HTTP methods
+  allowedHeaders: ['Content-Type', 'Authorization'], // Define allowed headers
+}));
 
 // Middleware to parse incoming JSON requests
 app.use(bodyParser.json());
@@ -20,7 +24,7 @@ if (!mongoUri) {
 }
 
 mongoose
-  .connect(mongoUri, { useNewUrlParser: true, useUnifiedTopology: true })
+  .connect(mongoUri)
   .then(() => {
     console.log('Connected to MongoDB Atlas');
   })
@@ -44,6 +48,11 @@ app.use('/api/auth', authRoutes);
 // Health Check Route
 app.get('/', (req, res) => {
   res.status(200).send('API is running.');
+});
+
+// Catch-all route to handle invalid API endpoints
+app.use((req, res) => {
+  res.status(404).json({ message: 'Endpoint not found.' });
 });
 
 // Error handling middleware
