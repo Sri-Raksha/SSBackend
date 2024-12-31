@@ -10,12 +10,13 @@ const app = express();
 // Middleware to enable CORS
 app.use(
   cors({
-    origin: process.env.FRONTEND_URL || "http://localhost:3000", // Use environment variable for frontend URL
-    methods: ["GET", "POST", "PUT", "DELETE"],
-    allowedHeaders: ["Content-Type", "Authorization"],
-    credentials: true, // If using cookies or other authentication
+    origin: "https://ss-frontend-coral.vercel.app", // Your frontend URL
+    methods: ["GET", "POST", "PUT", "DELETE"], // HTTP methods your API supports
+    allowedHeaders: ["Content-Type", "Authorization"], // Headers your API accepts
+    credentials: true, // Enable cookies or authentication headers if needed
   })
 );
+
 
 // Middleware to parse incoming JSON requests
 app.use(bodyParser.json());
