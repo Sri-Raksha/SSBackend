@@ -2,45 +2,51 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const mongoose = require('mongoose');
+const path = require('path');
 require('dotenv').config(); // Load environment variables from .env file
 
 const app = express();
 
 // Middleware to enable CORS
-app.use(cors({
-  origin: ['https://ss-frontend-three.vercel.app'], // Whitelist frontend URL from .env
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-  credentials: true,
-}));
+app.use(
+  cors({
+    origin: "https://ss-frontend-coral.vercel.app", // Frontend URL
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+    credentials: true, // If using cookies or other authentication
+  })
+);
 
-// Middleware to parse JSON
+// Middleware to parse incoming JSON requests
 app.use(bodyParser.json());
 
 // MongoDB Atlas connection
-mongoose.connect(process.env.MONGO_URI, {
-  useNewUrlParser: true, 
-  useUnifiedTopology: true,
-})
-  .then(() => console.log('Connected to MongoDB Atlas'))
-  .catch(err => {
-    console.error('Error connecting to MongoDB:', err.message);
-    process.exit(1); // Exit the process if connection fails
+const mongoUri = process.env.MONGO_URI; // Ensure this is set in your `.env` file
+if (!mongoUri) {
+  console.error('Error: MONGO_URI is not defined in the .env file.');
+  process.exit(1); // Exit the application if no MongoDB URI is provided
+}
+
+mongoose
+  .connect(mongoUri, { useNewUrlParser: true, useUnifiedTopology: true })
+  .then(() => {
+    console.log('Connected to MongoDB Atlas');
+  })
+  .catch((err) => {
+    console.error('Error connecting to MongoDB Atlas:', err.message);
+    process.exit(1); // Exit the application on connection failure
   });
 
-// Routes
+// Importing routes
 const authRoutes = require('./routes/auth');
-app.use('/api/auth', authRoutes); // Auth API route
 
-// Health check route
-app.get('/', (req, res) => {
-  res.status(200).send('API is running.');
-});
+// Setting up API routes
+app.use('/api/auth', authRoutes);
 
-// Handle unknown routes
-app.use((req, res) => res.status(404).json({ message: 'Endpoint not found.' }));
+// Serve static files from the Frontend folder if needed
+app.use(express.static(path.join(__dirname, '../Frontend')));
 
-// Global error handling middleware
+// Error handling middleware
 app.use((err, req, res, next) => {
   console.error('Server Error:', err);
   res.status(500).json({ message: 'Internal Server Error' });
@@ -48,4 +54,6 @@ app.use((err, req, res, next) => {
 
 // Start the server
 const PORT = process.env.PORT || 5001;
-app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));
+app.listen(PORT, () => {
+  console.log(`Server running on http://localhost:${PORT}`);
+});
