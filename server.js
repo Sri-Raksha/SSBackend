@@ -7,16 +7,27 @@ require('dotenv').config(); // Load environment variables from .env file
 
 const app = express();
 
-// Middleware to enable CORS
+// Allowed origins for CORS
+const allowedOrigins = [
+  "https://ss-frontend-coral.vercel.app", // Production frontend
+  "http://localhost:3000", // Local development frontend
+];
+
+// Middleware to enable CORS dynamically
 app.use(
   cors({
-    origin: "https://ss-frontend-coral.vercel.app", // Your frontend URL
+    origin: (origin, callback) => {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true); // Allow the request
+      } else {
+        callback(new Error(`CORS Error: Origin ${origin} is not allowed`));
+      }
+    },
     methods: ["GET", "POST", "PUT", "DELETE"], // HTTP methods your API supports
     allowedHeaders: ["Content-Type", "Authorization"], // Headers your API accepts
     credentials: true, // Enable cookies or authentication headers if needed
   })
 );
-
 
 // Middleware to parse incoming JSON requests
 app.use(bodyParser.json());
@@ -49,9 +60,8 @@ app.get('/api/health', (req, res) => {
 // Setting up API routes
 app.use('/api/auth', authRoutes);
 
-// Serve static files from the Frontend folder if needed
+// Serve static files from the Frontend folder in production
 if (process.env.NODE_ENV === 'production') {
-  // Serve frontend files in production mode
   const frontendPath = path.join(__dirname, '../Frontend');
   app.use(express.static(frontendPath));
 
@@ -60,10 +70,17 @@ if (process.env.NODE_ENV === 'production') {
   });
 }
 
+// Handle preflight requests
+app.options('*', cors());
+
 // Error handling middleware
 app.use((err, req, res, next) => {
-  console.error('Server Error:', err);
-  res.status(500).json({ message: 'Internal Server Error' });
+  console.error('Server Error:', err.message);
+  if (err.message.startsWith('CORS Error')) {
+    res.status(403).json({ message: err.message });
+  } else {
+    res.status(500).json({ message: 'Internal Server Error' });
+  }
 });
 
 // Start the server
