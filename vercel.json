@@ -1,0 +1,30 @@
+{
+  "rewrites": [
+    {
+      "source": "/api/:path*",
+      "destination": "https://ssbackend-rwmb.onrender.com/api/:path*"
+    }
+  ],
+  "redirects": [
+    {
+      "source": "/login",
+      "destination": "/index.html",
+      "permanent": true
+    }
+  ],
+  "headers": [
+    {
+      "source": "/api/:path*",
+      "headers": [
+        {
+          "key": "Access-Control-Allow-Origin",
+          "value": "https://ss-frontend-three.vercel.app"
+        },
+        {
+          "key": "Access-Control-Allow-Credentials",
+          "value": "true"
+        }
+      ]
+    }
+  ]
+}
