@@ -10,7 +10,7 @@ const app = express();
 // Middleware to enable CORS
 app.use(
   cors({
-    origin: "https://ss-frontend-coral.vercel.app", // Frontend URL
+    origin: process.env.FRONTEND_URL || "http://localhost:3000", // Use environment variable for frontend URL
     methods: ["GET", "POST", "PUT", "DELETE"],
     allowedHeaders: ["Content-Type", "Authorization"],
     credentials: true, // If using cookies or other authentication
@@ -40,11 +40,24 @@ mongoose
 // Importing routes
 const authRoutes = require('./routes/auth');
 
+// API health check
+app.get('/api/health', (req, res) => {
+  res.status(200).json({ message: 'API is running smoothly!' });
+});
+
 // Setting up API routes
 app.use('/api/auth', authRoutes);
 
 // Serve static files from the Frontend folder if needed
-app.use(express.static(path.join(__dirname, '../Frontend')));
+if (process.env.NODE_ENV === 'production') {
+  // Serve frontend files in production mode
+  const frontendPath = path.join(__dirname, '../Frontend');
+  app.use(express.static(frontendPath));
+
+  app.get('*', (req, res) => {
+    res.sendFile(path.join(frontendPath, 'index.html'));
+  });
+}
 
 // Error handling middleware
 app.use((err, req, res, next) => {
