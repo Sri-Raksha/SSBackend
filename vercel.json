@@ -2,7 +2,7 @@
   "rewrites": [
     {
       "source": "/api/:path*",
-      "destination": "https://ssbackend-rwmb.onrender.com/api/:path*"
+      "destination": "https://ss-backend.vercel.app/api/:path*"
     }
   ],
   "redirects": [
