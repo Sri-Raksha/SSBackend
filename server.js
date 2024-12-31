@@ -8,7 +8,7 @@ const app = express();
 
 // Middleware to enable CORS
 app.use(cors({
-  origin: process.env.FRONTEND_URL, // Whitelist frontend URL from .env
+  origin: ['https://ss-frontend-three.vercel.app'], // Whitelist frontend URL from .env
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true,
